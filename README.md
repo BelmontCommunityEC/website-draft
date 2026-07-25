@@ -3,7 +3,7 @@
 A fast, mobile-first, SEO-friendly website for our community non-profit, built with
 [Astro](https://astro.build/) and [Tailwind CSS](https://tailwindcss.com/).
 
-## Purpose (read this first)
+## Purpose
 
 The site exists to serve two goals, in priority order:
 
