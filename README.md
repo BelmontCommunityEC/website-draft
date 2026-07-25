@@ -17,16 +17,16 @@ The site exists to serve two goals, in priority order:
    members, and inform the community about projects and events.
 
 When the two goals compete, favour credibility.
-//
-// ## Quick start
-//
-// ```bash
-// npm install       # first time only
-// npm run dev       # start local preview at http://localhost:4321
-// npm run build     # build the production site into dist/
-// npm run preview   # preview the production build locally
-// ```
+<!-- 
+ ## Quick start
 
+ ```bash
+ npm install       # first time only
+ npm run dev       # start local preview at http://localhost:4321
+ npm run build     # build the production site into dist/
+ npm run preview   # preview the production build locally
+ ```
+-->
 ## Everyday maintenance (no coding needed)
 
 ### Edit site-wide details
@@ -55,7 +55,7 @@ Past events move to the "Past events" list automatically based on their date.
 3. Fill in the details, write the story, set `draft: false`.
 4. (Optional) Add a photo under `public/images/projects/<project_folder>/` and reference it in `image:`.
 5. Commit and deploy.
-
+<!--
 // ### If a new event or project does not appear
 //
 // Sometimes Astro's local content cache gets stale after schema/content updates.
@@ -78,7 +78,7 @@ Past events move to the "Past events" list automatically based on their date.
 //  ```
 //
 // Use this sequence if new content files are missing from pages, or if you see unexpected content-related 500 errors in local development.
-
+-->
 ### Add / change partner logos
 
 1. Put logo files in `public/logos/`.
