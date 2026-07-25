@@ -1,0 +1,29 @@
+---
+interface Props {
+  categories: string[];
+  size?: 'sm' | 'md';
+  class?: string;
+}
+
+const { categories = [], size = 'sm', class: className = '' } = Astro.props;
+
+const sizeClasses =
+  size === 'md'
+    ? 'px-2.5 py-0.5 text-[11px] font-semibold'
+    : 'px-2 py-0.5 text-[11px] font-medium';
+---
+
+{categories.length > 0 && (
+  <ul class:list={['flex flex-wrap gap-1.5', className]}>
+    {categories.map((category) => (
+      <li
+        class:list={[
+          'inline-flex items-center rounded-full bg-surface text-brand-dark ring-1 ring-inset ring-brand-light/70',
+          sizeClasses,
+        ]}
+      >
+        {category}
+      </li>
+    ))}
+  </ul>
+)}

@@ -1,0 +1,191 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site, socials } from '../config';
+import { CATEGORIES } from '../content/category-options';
+
+/**
+ * Focus categories shown on About page. Uses the shared category source of truth
+ * so wording stays consistent across projects, events and About copy.
+ */
+const categories = CATEGORIES;
+
+const orgName = site.name;
+
+const modelRuleObjects = [
+  {
+    title: 'Environment Restoration and Biodiversity',
+    detail:
+      "Protect, restore, and enhance the natural environment within the City of Belmont, with a focus on both private and public land, and the Swan River foreshore.",
+  },
+  {
+    title: 'Conservation of Local Fauna',
+    detail: 'Support the survival and habitat of local wildlife.',
+  },
+  {
+    title: 'Waste Reduction and Litter Management',
+    detail:
+      'Promote sustainable waste management practices and reduce the impact of litter on the local environment.',
+  },
+  {
+    title: 'Community Education and Engagement',
+    detail:
+      'Educate and empower the Belmont community to adopt environmentally sustainable lifestyles through workshops, resources, and collaborative events.',
+  },
+  {
+    title: 'Advocacy and Partnership',
+    detail:
+      'Act as a community voice for environmental issues and work in partnership with all levels of government and other organisations to improve Belmont\'s urban forest, built environment, and sustainability outcomes.',
+  },
+];
+
+/**
+ * Photo collage — assets live in `public/`. First tile is the large feature.
+ */
+const gallery = [
+  {
+    src: '/images/projects/less_mess/Less_Mess_Event.jpg',
+    alt: 'BCEC volunteers gathered at a community event',
+  },
+  {
+    src: '/images/projects/less_mess/Cleanup_Less_Mess.jpg',
+    alt: 'Volunteers at a community clean-up',
+  },
+  {
+    src: 'images/projects/events/plant-propagation-workshop/54E980AA-4D10-4B91-B5AF-B4F41E608B89.jpg',
+    alt: 'An educational workshop in progress',
+  },
+  {
+    src: '/images/projects/less_mess/Less_Mess_Planting.jpg',
+    alt: 'Community members planting trees',
+  },
+  {
+    src: '/images/projects/less_mess/Less_Mess_Optus_Students.jpg',
+    alt: 'Students taking part in an activity',
+  },
+];
+---
+
+<BaseLayout title="About Us" description={site.description}>
+  <!-- Intro — "Who are BCEC?" -->
+  <section class="bg-brand-light">
+    <div class="mx-auto max-w-4xl px-4 py-14 sm:py-16">
+      <span class="inline-block rounded-full bg-brand-dark px-4 py-1 text-sm font-bold text-white">
+        Who are BCEC?
+      </span>
+      <h1 class="mt-4 font-heading text-2xl font-extrabold leading-tight text-brand-dark sm:text-3xl lg:text-[2rem]">
+        {orgName}
+      </h1>
+      <p class="mt-4 text-base leading-relaxed text-ink sm:text-lg">
+        {site.description}
+      </p>
+    </div>
+  </section>
+
+  <!-- Photo collage -->
+  <section class="mx-auto max-w-4xl px-4 py-12">
+    <div class="grid auto-rows-[9rem] grid-cols-2 gap-3 sm:grid-cols-3">
+      {
+        gallery.map((photo, i) => (
+          <figure
+            class:list={[
+              'overflow-hidden rounded-2xl bg-brand-light',
+              i === 0 ? 'col-span-2 row-span-2' : '',
+            ]}
+          >
+            <img
+              src={photo.src}
+              alt={photo.alt}
+              class="h-full w-full object-cover"
+              loading="lazy"
+            />
+          </figure>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- What do we do? -->
+  <section class="mx-auto max-w-4xl px-4 pb-12">
+    <h2 class="font-heading text-2xl font-bold text-brand-dark">What do we do?</h2>
+    <ul class="mt-6 grid gap-3 sm:grid-cols-2">
+      {
+        categories.map((item) => (
+          <li class="flex items-center gap-3 rounded-xl border border-brand-light bg-white p-4 shadow-sm">
+            <span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-brand text-white">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </span>
+            <span class="font-medium text-ink">{item}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Guiding principles -->
+  <section class="mx-auto max-w-4xl px-4 pb-12">
+    <h2 class="font-heading text-2xl font-bold text-brand-dark">Our guiding principles</h2>
+    <div class="mt-6 grid gap-3">
+      {
+        modelRuleObjects.map((object, index) => (
+          <article class="rounded-xl border border-brand-light bg-white p-4 shadow-sm">
+            <h3 class="font-heading text-lg font-bold text-brand-dark">
+              {index + 1}. {object.title}
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-ink">{object.detail}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Patron -->
+  <section class="mx-auto max-w-4xl px-4 pb-12">
+    <h2 class="font-heading text-2xl font-bold text-brand-dark">Our patron</h2>
+    <article class="mt-6 rounded-xl border border-brand-light bg-white p-5 shadow-sm">
+      <h3 class="font-heading text-lg font-bold text-brand-dark">Cassie Rowe MLA</h3>
+      <p class="mt-2 text-sm leading-relaxed text-ink">
+        Cassie Rowe MLA serves as BCEC's patron. Her office provides ongoing support to
+        our organisation and maintains a constructive connection with our work.
+      </p>
+    </article>
+  </section>
+
+  <!-- Want to know more? -->
+  <section class="bg-brand-dark">
+    <div class="mx-auto max-w-4xl px-4 py-12 text-center">
+      <h2 class="font-heading text-2xl font-bold text-white sm:text-3xl">Want to know more?</h2>
+      <p class="mx-auto mt-3 max-w-xl text-brand-light">
+        Come along, lend a hand, or just say hello — everyone is welcome.
+      </p>
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-4">
+        <a
+          href="/get-involved"
+          class="rounded-full bg-brand px-6 py-3 font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-white"
+        >
+          Get involved
+        </a>
+        {
+          socials.email && (
+            <a href={`mailto:${socials.email}`} class="font-medium text-white underline hover:text-brand-light">
+              {socials.email}
+            </a>
+          )
+        }
+        {
+          socials.facebook && (
+            <a
+              href={socials.facebook}
+              class="font-medium text-white underline hover:text-brand-light"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Find us on Facebook
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>

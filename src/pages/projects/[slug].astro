@@ -1,0 +1,254 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CategoryPills from '../../components/CategoryPills.astro';
+import StatusBadge from '../../components/StatusBadge.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { socials } from '../../config';
+import { resolveCategories } from '../../content/categories';
+import { resolvePartners, primaryFunderName } from '../../content/organisations';
+
+// Generates one page per file in src/content/projects/ — this is the template.
+export async function getStaticPaths() {
+  const projects = await getCollection('projects', ({ data }) => !data.draft);
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { data } = project;
+
+const dateFmt = new Intl.DateTimeFormat('en-AU', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+const projectCategories = resolveCategories(data);
+
+// Status badge copy.
+const statusLabels: Record<string, string> = {
+  past: 'Past project',
+  ongoing: 'Ongoing program',
+  recurring: 'Recurring program',
+  upcoming: 'Upcoming',
+};
+
+// Related projects: same category, excluding this one, most recent first.
+const related = (await getCollection('projects', ({ data }) => !data.draft))
+  .filter(
+    (p) =>
+      p.id !== project.id &&
+      resolveCategories(p.data).some((category) => projectCategories.includes(category)),
+  )
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+---
+
+<BaseLayout title={data.title} description={data.summary} image={data.image}>
+  <article class="mx-auto max-w-3xl px-4 py-12">
+    <a href="/projects" class="text-sm font-medium text-brand hover:underline">
+      ← All projects
+    </a>
+
+    <header class="mt-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <StatusBadge label={statusLabels[data.status]} />
+      </div>
+      <h1 class="mt-2 font-heading text-3xl font-bold text-brand-dark sm:text-4xl">
+        {data.title}
+      </h1>
+      <CategoryPills categories={projectCategories} size="md" class="mt-2" />
+      <p class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+        <time datetime={data.date.toISOString()}>{dateFmt.format(data.date)}</time>
+        {data.location && <><span aria-hidden="true">·</span><span>{data.location}</span></>}
+      </p>
+    </header>
+
+    {
+      data.image && (
+        <figure class="mt-6">
+          <img
+            src={data.image}
+            alt={data.imageAlt ?? data.title}
+            class="aspect-video w-full rounded-xl object-cover"
+          />
+          {data.imageCredit && (
+            <figcaption class="mt-2 text-right text-xs text-muted">
+              {data.imageCredit}
+            </figcaption>
+          )}
+        </figure>
+      )
+    }
+
+    {
+      data.stats && data.stats.length > 0 && (
+        <dl class="mt-6 grid grid-cols-2 gap-3 rounded-xl bg-surface p-4 sm:grid-cols-3 sm:gap-4 sm:p-6">
+          {data.stats.map((stat) => (
+            <div class="text-center">
+              <dd class="font-heading text-2xl font-bold text-brand">{stat.value}</dd>
+              <dt class="text-xs uppercase tracking-wide text-muted">{stat.label}</dt>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+
+    <div
+      class="prose mt-8 max-w-none prose-headings:font-heading prose-headings:text-brand-dark prose-a:text-brand"
+    >
+      <Content />
+    </div>
+
+    {
+      data.outcomes && data.outcomes.length > 0 && (
+        <section class="mt-10">
+          <h2 class="font-heading text-xl font-bold text-brand-dark">Outcomes</h2>
+          <ul class="mt-4 space-y-3">
+            {data.outcomes.map((outcome) => (
+              <li class="flex items-start gap-3 rounded-lg bg-surface p-4">
+                <svg
+                  class="mt-0.5 h-5 w-5 flex-shrink-0 text-brand"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.42 0l-3.5-3.5a1 1 0 111.42-1.42l2.79 2.79 6.79-6.79a1 1 0 011.42 0z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span class="text-sm text-ink">{outcome}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      data.partners && data.partners.length > 0 && (
+        <section class="mt-10">
+          <h2 class="font-heading text-xl font-bold text-brand-dark">
+            Partners &amp; supporters
+          </h2>
+          <ul class="mt-4 flex flex-wrap gap-3">
+            {resolvePartners(data.partners).map((partner) => {
+              const inner = (
+                <span class="flex items-center gap-2">
+                  {partner.logo && (
+                    <img src={partner.logo} alt="" class="h-6 w-auto" loading="lazy" />
+                  )}
+                  <span class="text-sm font-medium text-brand-dark">{partner.name}</span>
+                </span>
+              );
+              return (
+                <li class="rounded-lg border border-gray-100 bg-white px-4 py-2 shadow-sm">
+                  {partner.url ? (
+                    <a
+                      href={partner.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="hover:opacity-80"
+                    >
+                      {inner}
+                    </a>
+                  ) : (
+                    inner
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      data.gallery && data.gallery.length > 0 && (
+        <section class="mt-10">
+          <h2 class="font-heading text-xl font-bold text-brand-dark">Photos</h2>
+          <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {data.gallery.map((photo) => (
+              <img
+                src={photo.src}
+                alt={photo.alt}
+                class="aspect-square w-full rounded-lg object-cover"
+                loading="lazy"
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <aside class="mt-12 rounded-2xl bg-brand-dark px-6 py-8 text-center text-white">
+      <h2 class="font-heading text-xl font-bold">Get involved</h2>
+      <p class="mx-auto mt-2 max-w-md text-sm text-white/90">
+        BCEC is powered by local residents. Join us, lend a hand at our next event, or
+        follow along to see what we do.
+      </p>
+      <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
+        <a
+          href="/get-involved"
+          class="w-full rounded-full bg-brand px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto"
+        >
+          Get involved
+        </a>
+        <a
+          href="/events"
+          class="w-full rounded-full bg-white/10 px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-white/20 sm:w-auto"
+        >
+          See events
+        </a>
+        {
+          socials.email && (
+            <a
+              href={`mailto:${socials.email}`}
+              class="w-full rounded-full bg-white/10 px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-white/20 sm:w-auto"
+            >
+              Email us
+            </a>
+          )
+        }
+        {
+          socials.facebook && (
+            <a
+              href={socials.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="w-full rounded-full bg-white/10 px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-white/20 sm:w-auto"
+            >
+              Facebook updates
+            </a>
+          )
+        }
+      </div>
+    </aside>
+  </article>
+
+  {
+    related.length > 0 && (
+      <section class="mx-auto max-w-6xl px-4 pb-16">
+        <h2 class="font-heading text-2xl font-bold text-brand-dark">More projects</h2>
+        <div class="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {related.map((p) => (
+            <ProjectCard
+              title={p.data.title}
+              summary={p.data.summary}
+              categories={resolveCategories(p.data)}
+              href={`/projects/${p.id}`}
+              image={p.data.image}
+              imageAlt={p.data.imageAlt}
+              funder={primaryFunderName(p.data.partners)}
+            />
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

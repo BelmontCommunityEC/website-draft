@@ -1,0 +1,53 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/*
+ * ────────────────────────────────────────────────────────────────
+ *  DESIGN TOKENS — update these to match your style guide.
+ *  These become Tailwind utility classes automatically, e.g.
+ *  `bg-brand`, `text-brand-dark`, `font-heading`.
+ * ────────────────────────────────────────────────────────────────
+ */
+@theme {
+  /* Brand colours — from the BCEC Canva Brand Kit */
+  --color-brand: #40b93c; /* Dark Green — primary / calls to action */
+  --color-brand-dark: #0e6f77; /* Dark Teal — headings & dark accents */
+  --color-brand-light: #d1eed1; /* Pale Green — light section backgrounds */
+  --color-accent: #7fafb1; /* Pale Teal — secondary accent */
+  --color-ink: #1a202c;
+  --color-muted: #4a5568;
+  --color-surface: #f7fafc;
+
+  /*
+   * Typography — the brand uses "Canva Sans", a proprietary font that
+   * can't be embedded on a public site. "Nunito" is a close, friendly
+   * free substitute (loaded via Google Fonts in BaseLayout.astro).
+   */
+  --font-heading: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Base element styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background-color: white;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

@@ -1,0 +1,79 @@
+---
+import CategoryPills from './CategoryPills.astro';
+
+interface Props {
+  title: string;
+  categories?: string[];
+  start: Date;
+  end?: Date;
+  location: string;
+  summary: string;
+  registerUrl?: string;
+  href?: string;
+}
+
+const { title, categories, start, end, location, summary, registerUrl, href } = Astro.props;
+
+const dateFmt = new Intl.DateTimeFormat('en-AU', {
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+});
+const timeFmt = new Intl.DateTimeFormat('en-AU', {
+  hour: 'numeric',
+  minute: '2-digit',
+});
+
+const dateLabel = dateFmt.format(start);
+const timeLabel = end
+  ? `${timeFmt.format(start)} – ${timeFmt.format(end)}`
+  : timeFmt.format(start);
+---
+
+<article class="flex flex-col gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:gap-5">
+  <!-- Date badge -->
+  <div class="flex w-full shrink-0 flex-row items-center gap-3 sm:w-24 sm:flex-col sm:gap-0">
+    <div class="rounded-lg bg-brand-light px-4 py-2 text-center text-brand-dark">
+      <div class="font-heading text-2xl font-bold leading-none">
+        {new Intl.DateTimeFormat('en-AU', { day: 'numeric' }).format(start)}
+      </div>
+      <div class="text-xs font-semibold uppercase">
+        {new Intl.DateTimeFormat('en-AU', { month: 'short' }).format(start)}
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-1">
+    {categories && categories.length > 0 && <CategoryPills categories={categories} />}
+    <h3 class="font-heading text-lg font-bold text-brand-dark">
+      {href ? (
+        <a href={href} class="hover:underline">{title}</a>
+      ) : (
+        title
+      )}
+    </h3>
+    <p class="mt-0.5 text-sm text-muted">
+      <time datetime={start.toISOString()}>{dateLabel}</time> · {timeLabel} · {location}
+    </p>
+    <p class="mt-2 text-sm text-muted">{summary}</p>
+    {href && (
+      <a href={href} class="mt-2 inline-block text-sm font-medium text-brand hover:underline">
+        View details →
+      </a>
+    )}
+  </div>
+
+  {
+    registerUrl && (
+      <a
+        href={registerUrl}
+        target="_blank"
+        rel="noopener"
+        class="inline-flex shrink-0 items-center justify-center rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-dark"
+      >
+        Register
+      </a>
+    )
+  }
+</article>

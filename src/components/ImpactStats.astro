@@ -1,0 +1,173 @@
+---
+import { getCollection } from 'astro:content';
+import { resolvePartners } from '../content/organisations';
+
+// Rolls the `stats` from every published project up into a small impact strip.
+// Only stats that carry a `metric` key are summed here, so placeholder or
+// project-only figures never leak into the headline totals.
+//
+// EDIT ME: choose which metrics headline the strip, in order. `key` must match
+// the `metric:` used in project frontmatter; `label` is what visitors see.
+// Only metrics that have data are shown, and at most the first six.
+const featured = [
+  { key: 'trees', label: 'Trees planted' },
+  { key: 'plants', label: 'Native plants planted' },
+  { key: 'events', label: 'Events held' },
+  { key: 'people', label: 'Residents reached' },
+  { key: 'volunteers', label: 'Volunteers involved' },
+  { key: 'schools', label: 'Schools involved' },
+  { key: 'litter', label: 'Bags of litter collected' },
+];
+
+const projects = await getCollection('projects', ({ data }) => !data.draft);
+
+// Past, standalone events (no parent project) also carry impact. Events that
+// belong to a project are excluded here so their numbers aren't double-counted
+// (they're already inside the parent project's stats / eventsHeld).
+const now = new Date();
+const pastEvents = await getCollection(
+  'events',
+  ({ data }) => !data.draft && data.start <= now,
+);
+const standaloneEvents = pastEvents.filter((e) => !e.data.project);
+
+// Parse "60+", "1,200", "150+" → { num, approx }.
+function parseStat(value: string) {
+  const approx = /\+|over|approx/i.test(value);
+  const digits = value.replace(/[^0-9]/g, '');
+  return { num: digits ? parseInt(digits, 10) : 0, approx };
+}
+
+const totals = new Map<string, { sum: number; approx: boolean }>();
+function addStat(metric: string, value: string) {
+  const { num, approx } = parseStat(value);
+  const current = totals.get(metric) ?? { sum: 0, approx: false };
+  current.sum += num;
+  current.approx = current.approx || approx;
+  totals.set(metric, current);
+}
+for (const project of projects) {
+  for (const stat of project.data.stats ?? []) {
+    if (!stat.metric) continue;
+    addStat(stat.metric, stat.value);
+  }
+}
+for (const event of standaloneEvents) {
+  for (const stat of event.data.stats ?? []) {
+    if (!stat.metric) continue;
+    addStat(stat.metric, stat.value);
+  }
+}
+
+// The "events" total is a project-level count (data.eventsHeld) rather than a
+// single stat, so clean-ups, tours, workshops and exhibitions all count. Each
+// past standalone event adds one more (parented events are already inside their
+// project's eventsHeld).
+let eventsHeld = standaloneEvents.length;
+for (const project of projects) {
+  eventsHeld += project.data.eventsHeld ?? 0;
+}
+if (eventsHeld > 0) totals.set('events', { sum: eventsHeld, approx: false });
+
+// Schools involved = unique participating schools across projects (deduped by
+// organisation id), so a school that helps with more than one project isn't
+// counted twice.
+const schools = new Set<string>();
+for (const project of projects) {
+  for (const partner of resolvePartners(project.data.partners)) {
+    if (partner.role === 'school') schools.add(partner.id);
+  }
+}
+if (schools.size > 0) totals.set('schools', { sum: schools.size, approx: false });
+
+const items = featured
+  .map(({ key, label }) => {
+    const total = totals.get(key);
+    if (!total || total.sum <= 0) return null;
+    return {
+      label,
+      display: `${total.sum.toLocaleString('en-AU')}${total.approx ? '+' : ''}`,
+    };
+  })
+  .filter((item): item is { label: string; display: string } => item !== null)
+  .slice(0, 6);
+
+// Grants that aren't tied to a single project (operational/capacity grants) are
+// stored as markdown in `src/content/grants/` so they can be edited without
+// touching code. Their amounts are added to the headline total below.
+const grantEntries = await getCollection('grants', ({ data }) => !data.draft);
+const otherGrants = grantEntries.reduce((sum, g) => sum + g.data.amount, 0);
+
+// Grants are summed separately and shown as a headline currency figure.
+const grant = totals.get('grant');
+const grantTotal = (grant?.sum ?? 0) + otherGrants;
+const grantDisplay =
+  grantTotal > 0
+    ? `$${grantTotal.toLocaleString('en-AU')}${grant?.approx ? '+' : ''}`
+    : null;
+
+// Community fundraising (e.g. a Bunnings sausage sizzle) is money we raised
+// ourselves — shown as its OWN line, never folded into grant funding.
+const raisedTotal = pastEvents.reduce((sum, e) => sum + (e.data.raised ?? 0), 0);
+const raisedDisplay =
+  raisedTotal > 0
+    ? `$${raisedTotal.toLocaleString('en-AU', {
+        minimumFractionDigits: raisedTotal % 1 === 0 ? 0 : 2,
+        maximumFractionDigits: 2,
+      })}`
+    : null;
+
+const colClass =
+  items.length >= 6
+    ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6'
+    : items.length === 5
+      ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
+      : items.length === 4
+      ? 'grid-cols-2 sm:grid-cols-4'
+      : items.length === 3
+        ? 'grid-cols-1 sm:grid-cols-3'
+        : items.length === 2
+          ? 'grid-cols-2'
+          : 'grid-cols-1';
+---
+
+{
+  (items.length > 0 || grantDisplay || raisedDisplay) && (
+    <section class="mx-auto max-w-5xl px-4 py-10">
+      {(grantDisplay || raisedDisplay) && (
+        <div class="mb-8 flex flex-col items-center justify-center gap-6 sm:flex-row sm:gap-12">
+          {grantDisplay && (
+            <p class="text-center">
+              <span class="block font-heading text-4xl font-bold text-brand-dark sm:text-5xl">
+                {grantDisplay}
+              </span>
+              <span class="mt-1 block text-sm uppercase tracking-wide text-muted">
+                secured in grants &amp; funding
+              </span>
+            </p>
+          )}
+          {raisedDisplay && (
+            <p class="text-center">
+              <span class="block font-heading text-4xl font-bold text-brand-dark sm:text-5xl">
+                {raisedDisplay}
+              </span>
+              <span class="mt-1 block text-sm uppercase tracking-wide text-muted">
+                raised by our community
+              </span>
+            </p>
+          )}
+        </div>
+      )}
+      {items.length > 0 && (
+        <dl class:list={['grid gap-4 text-center', colClass]}>
+          {items.map((item) => (
+            <div>
+              <dt class="order-2 text-xs uppercase tracking-wide text-muted">{item.label}</dt>
+              <dd class="order-1 font-heading text-3xl font-bold text-brand">{item.display}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </section>
+  )
+}

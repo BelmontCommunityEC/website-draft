@@ -1,0 +1,54 @@
+---
+/**
+ * SEO component — injects title, description, canonical URL,
+ * Open Graph and Twitter tags. Used by every page via BaseLayout.
+ */
+import { site } from '../config';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Absolute or site-relative image for social sharing. */
+  image?: string;
+}
+
+const {
+  title,
+  description = site.description,
+  image = '/site_assets/White%20Blurred%20Favicon%20Background.png',
+} = Astro.props;
+
+const pageTitle = title ? `${title} · ${site.name}` : `${site.name} — ${site.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+const socialImage = new URL(image, Astro.site ?? site.url).href;
+---
+
+<title>{pageTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:title" content={pageTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={socialImage} />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={pageTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={socialImage} />
+
+<!-- Structured data: helps search engines understand the organisation -->
+<script
+  type="application/ld+json"
+  set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'NGO',
+    name: site.name,
+    description: site.description,
+    url: site.url,
+  })}
+/>

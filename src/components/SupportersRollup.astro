@@ -1,0 +1,148 @@
+---
+import { getCollection } from 'astro:content';
+import { patrons as sitePatrons } from '../config';
+import {
+  ROLES,
+  resolvePartner,
+  resolvePartners,
+  type ResolvedPartner,
+  type Role,
+} from '../content/organisations';
+
+// Aggregates the `partners` referenced on every published project/event (plus
+// grants and site-level patrons) into a single, de-duplicated roll-up grouped
+// by role. Everything references an organisation by `id`, so the same body can
+// never split into two cards through a spelling difference.
+const projects = await getCollection('projects', ({ data }) => !data.draft);
+
+const roleOrder = ROLES; // ['funder', 'partner', 'patron', 'supporter', 'school']
+const roleLabels: Record<Role, string> = {
+  funder: 'Funders & grants',
+  partner: 'Delivery partners',
+  patron: 'Patron',
+  supporter: 'Supporters',
+  school: 'Participating schools & groups',
+};
+
+// Supporters/funders not tied to a single project (e.g. operational/capacity
+// grants) are stored as markdown in `src/content/grants/` so they still appear
+// in the roll-up without needing a project page or a code change.
+const grantEntries = await getCollection('grants', ({ data }) => !data.draft);
+const grantSupporters: ResolvedPartner[] = grantEntries.map((g) =>
+  resolvePartner({ org: g.data.org, role: g.data.role }),
+);
+// Site-level patrons (config.ts) shown regardless of project/event data.
+const patronSupporters: ResolvedPartner[] = sitePatrons.map((org) =>
+  resolvePartner({ org }),
+);
+
+// Flatten every source into one list, de-duplicating by organisation id. When
+// the same organisation appears more than once we PROMOTE it to its
+// highest-ranking role (roleOrder defines the hierarchy), so e.g. City of
+// Belmont — a funder on Go Nuts but only a delivery partner on Garvey Park — is
+// always shown as a funder.
+const rank = (role: string) => {
+  const i = roleOrder.indexOf(role as Role);
+  return i === -1 ? roleOrder.length : i;
+};
+
+const byId = new Map<string, ResolvedPartner>();
+function addSupporter(supporter: ResolvedPartner) {
+  const existing = byId.get(supporter.id);
+  if (!existing) {
+    byId.set(supporter.id, { ...supporter });
+    return;
+  }
+  existing.url ??= supporter.url;
+  existing.logo ??= supporter.logo;
+  if (rank(supporter.role) < rank(existing.role)) existing.role = supporter.role;
+}
+
+for (const project of projects) {
+  for (const partner of resolvePartners(project.data.partners)) addSupporter(partner);
+}
+// Event hosts/supporters (e.g. Bunnings for a sausage sizzle) flow in too.
+const events = await getCollection('events', ({ data }) => !data.draft);
+for (const event of events) {
+  for (const partner of resolvePartners(event.data.partners)) addSupporter(partner);
+}
+for (const patron of patronSupporters) addSupporter(patron);
+for (const supporter of grantSupporters) addSupporter(supporter);
+
+const all = [...byId.values()];
+const groups = roleOrder
+  .map((role) => ({
+    label: roleLabels[role],
+    items: all
+      .filter((s) => s.role === role)
+      .sort((a, b) => a.name.localeCompare(b.name)),
+  }))
+  .filter((group) => group.items.length > 0);
+---
+
+
+{
+  groups.length > 0 && (
+    <section
+      class="border-y border-gray-100 bg-surface py-12"
+      aria-labelledby="supporters-heading"
+    >
+      <div class="mx-auto max-w-5xl px-4">
+        <h2
+          id="supporters-heading"
+          class="text-center font-heading text-2xl font-bold text-brand-dark"
+        >
+          Our partners &amp; supporters
+        </h2>
+        <p class="mx-auto mt-2 max-w-2xl text-center text-sm text-muted">
+          BCEC works alongside our patron, funders, partners and community groups to
+          deliver real outcomes for our community.
+        </p>
+        <div class="mt-8 space-y-8">
+          {groups.map((group) => (
+            <div>
+              <h3 class="text-center text-xs font-semibold uppercase tracking-wide text-accent">
+                {group.label}
+              </h3>
+              <ul class="mt-4 flex flex-wrap items-center justify-center gap-3">
+                {group.items.map((supporter) => {
+                  const inner = (
+                    <span class="flex items-center gap-2">
+                      {supporter.logo && (
+                        <img
+                          src={supporter.logo}
+                          alt=""
+                          class="h-6 w-auto"
+                          loading="lazy"
+                        />
+                      )}
+                      <span class="text-sm font-medium text-brand-dark">
+                        {supporter.name}
+                      </span>
+                    </span>
+                  );
+                  return (
+                    <li class="rounded-lg border border-gray-100 bg-white px-4 py-2 shadow-sm">
+                      {supporter.url ? (
+                        <a
+                          href={supporter.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="hover:opacity-80"
+                        >
+                          {inner}
+                        </a>
+                      ) : (
+                        inner
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}

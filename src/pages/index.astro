@@ -1,0 +1,122 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ImpactStats from '../components/ImpactStats.astro';
+import SupportersRollup from '../components/SupportersRollup.astro';
+import CategoryPills from '../components/CategoryPills.astro';
+import { site, forms } from '../config';
+import { resolveCategories } from '../content/categories';
+
+// Next upcoming event for the hero call-to-action.
+const now = new Date();
+const events = (await getCollection('events', ({ data }) => !data.draft))
+  .filter((e) => e.data.start >= now)
+  .sort((a, b) => a.data.start.valueOf() - b.data.start.valueOf());
+const nextEvent = events[0];
+
+// A couple of highlight projects.
+const projects = (await getCollection('projects', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+//  Hero photo strip
+const heroPhotos = [
+  {
+    src: '/images/projects/events/garvey_park_green_up/33367C4B-2415-41FF-B21B-31EE2216E160.JPG',
+    alt: 'Garvey Park Green-up volunteers celebrating after planting day',
+    className:
+      'col-span-2 aspect-[2.5/1] w-full rounded-2xl object-cover object-[center_35%] shadow-sm sm:col-span-4 sm:aspect-[3.5/1]',
+  },
+  {
+    src: '/images/projects/go_nuts/Cockatoo_Go_Nuts.jpg',
+    alt: 'Black cockatoo at a BCEC Go Nuts event display',
+    className: 'col-span-2 aspect-[2.5/1] w-full rounded-2xl object-cover object-[center_45%] shadow-sm sm:col-span-2 sm:h-64',
+  },
+  {
+    src: '/images/projects/less_mess/kids.jpg',
+    alt: 'Children participating in a clean-up event',
+    className: 'col-span-2 aspect-[2.5/1] w-full rounded-2xl object-cover object-[center_15%] shadow-sm sm:col-span-2 sm:h-64',
+  }
+];
+---
+
+<BaseLayout>
+  <!-- HERO — compact, credibility-focused, fits above the fold on mobile -->
+  <section class="bg-gradient-to-b from-brand-light/60 to-white">
+    <div class="mx-auto max-w-5xl px-4 py-12 text-center sm:py-16">
+      <p class="text-sm font-semibold uppercase tracking-wide text-brand">
+        Belmont Community Environmental Champions Inc.
+      </p>
+      <h1 class="mt-3 font-heading text-3xl font-bold text-brand-dark sm:text-5xl">
+        {site.tagline}
+      </h1>
+      <p class="mx-auto mt-4 max-w-2xl text-base text-muted sm:text-lg">
+        {site.description}
+      </p>
+      <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+        <a
+          href="/get-involved"
+          class="rounded-lg bg-brand px-6 py-3 font-semibold text-white transition hover:bg-brand-dark"
+        >
+          Get Involved
+        </a>
+        {
+          nextEvent && (
+            <a
+              href="/events"
+              class="rounded-lg border border-brand px-6 py-3 font-semibold text-brand transition hover:bg-brand-light"
+            >
+              See Upcoming Events
+            </a>
+          )
+        }
+      </div>
+
+      <!-- Hero photo strip -->
+      <div class="mx-auto mt-10 grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-4">
+        {heroPhotos.map((photo) => (
+          <img
+            src={photo.src}
+            alt={photo.alt}
+            class={photo.className}
+            loading="lazy"
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPACT STRIP — totals rolled up from project stats (metric keys). -->
+  <ImpactStats />
+
+  <!-- PARTNERS & SUPPORTERS ROLL-UP (aggregated from projects) -->
+  <SupportersRollup />
+
+  <!-- FEATURED PROJECTS -->
+  {
+    projects.length > 0 && (
+      <section class="mx-auto max-w-6xl px-4 py-12">
+        <div class="flex flex-col items-start gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <h2 class="font-heading text-2xl font-bold text-brand-dark">Recent projects</h2>
+          <a href="/projects" class="text-sm font-medium text-brand hover:underline">
+            View all →
+          </a>
+        </div>
+        <div class="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {projects.map((project) => (
+            <a
+              href={`/projects/${project.id}`}
+              class="group rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md"
+            >
+              <CategoryPills categories={resolveCategories(project.data)} />
+              <h3 class="mt-1 font-heading text-lg font-bold text-brand-dark group-hover:text-brand">
+                {project.data.title}
+              </h3>
+              <p class="mt-2 line-clamp-2 text-sm text-muted">{project.data.summary}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

@@ -1,0 +1,313 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CategoryPills from '../../components/CategoryPills.astro';
+import StatusBadge from '../../components/StatusBadge.astro';
+import { socials } from '../../config';
+import { resolveCategories } from '../../content/categories';
+import { resolvePartners } from '../../content/organisations';
+
+// One page per file in src/content/events/. An event page adapts to its stage:
+// BEFORE the day it stays simple (summary + date + register CTA to capture
+// interest); AFTER the day it fills out with whatever impact the committee adds
+// (stats, outcomes, photos, funds raised) — every impact field is optional.
+export async function getStaticPaths() {
+  const events = await getCollection('events', ({ data }) => !data.draft);
+  return events.map((event) => ({
+    params: { slug: event.id },
+    props: { event },
+  }));
+}
+
+const { event } = Astro.props;
+const { Content } = await render(event);
+const { data } = event;
+
+const now = new Date();
+const isPast = data.start < now;
+const eventCategories = resolveCategories(data);
+
+const dateFmt = new Intl.DateTimeFormat('en-AU', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+const timeFmt = new Intl.DateTimeFormat('en-AU', {
+  hour: 'numeric',
+  minute: '2-digit',
+});
+const timeLabel = data.end
+  ? `${timeFmt.format(data.start)} – ${timeFmt.format(data.end)}`
+  : timeFmt.format(data.start);
+
+// If this event belongs to a project, link back to it.
+const parent = data.project
+  ? (await getCollection('projects', ({ data }) => !data.draft)).find(
+      (p) => p.id === data.project,
+    )
+  : undefined;
+
+// Community fundraising line (shown once the event has raised something).
+const raisedDisplay =
+  data.raised && data.raised > 0
+    ? `$${data.raised.toLocaleString('en-AU', {
+        minimumFractionDigits: data.raised % 1 === 0 ? 0 : 2,
+        maximumFractionDigits: 2,
+      })}`
+    : null;
+
+// A past event that hasn't been written up yet (no stats, outcomes, raised or
+// photos) shows a gentle "we're still collating the impact" note instead of an
+// empty page.
+const hasImpact = Boolean(
+  (data.stats && data.stats.length > 0) ||
+    (data.outcomes && data.outcomes.length > 0) ||
+    (data.gallery && data.gallery.length > 0) ||
+    (data.raised && data.raised > 0),
+);
+const awaitingImpact = isPast && !hasImpact;
+---
+
+<BaseLayout title={data.title} description={data.summary} image={data.image}>
+  <article class="mx-auto max-w-3xl px-4 py-12">
+    <a href="/events" class="text-sm font-medium text-brand hover:underline">
+      ← All events
+    </a>
+
+    <header class="mt-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <StatusBadge label={isPast ? 'Past event' : 'Upcoming event'} />
+        {
+          parent && (
+            <a
+              href={`/projects/${parent.id}`}
+              class="text-xs font-semibold uppercase tracking-wide text-accent hover:underline"
+            >
+              Part of {parent.data.title}
+            </a>
+          )
+        }
+      </div>
+      <h1 class="mt-2 font-heading text-3xl font-bold text-brand-dark sm:text-4xl">
+        {data.title}
+      </h1>
+      <CategoryPills categories={eventCategories} size="md" class="mt-2" />
+      <p class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+        <time datetime={data.start.toISOString()}>{dateFmt.format(data.start)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{timeLabel}</span>
+        <span aria-hidden="true">·</span>
+        <span>{data.location}</span>
+      </p>
+    </header>
+
+    <p class="mt-5 text-base text-ink sm:text-lg">{data.summary}</p>
+
+    {
+      !isPast && data.registerUrl && (
+        <div class="mt-6">
+          <a
+            href={data.registerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-dark"
+          >
+            Register for this event
+          </a>
+        </div>
+      )
+    }
+
+    {
+      data.image && (
+        <figure class="mt-6">
+          <img
+            src={data.image}
+            alt={data.imageAlt ?? data.title}
+            class="aspect-video w-full rounded-xl object-cover"
+          />
+          {data.imageCredit && (
+            <figcaption class="mt-2 text-right text-xs text-muted">
+              {data.imageCredit}
+            </figcaption>
+          )}
+        </figure>
+      )
+    }
+
+    {
+      data.stats && data.stats.length > 0 && (
+        <dl class="mt-6 grid grid-cols-2 gap-3 rounded-xl bg-surface p-4 sm:grid-cols-3 sm:gap-4 sm:p-6">
+          {data.stats.map((stat) => (
+            <div class="text-center">
+              <dd class="font-heading text-2xl font-bold text-brand">{stat.value}</dd>
+              <dt class="text-xs uppercase tracking-wide text-muted">{stat.label}</dt>
+            </div>
+          ))}
+          {raisedDisplay && (
+            <div class="text-center">
+              <dd class="font-heading text-2xl font-bold text-brand">{raisedDisplay}</dd>
+              <dt class="text-xs uppercase tracking-wide text-muted">Raised for BCEC</dt>
+            </div>
+          )}
+        </dl>
+      )
+    }
+
+    {
+      raisedDisplay && (!data.stats || data.stats.length === 0) && (
+        <p class="mt-6 rounded-xl bg-surface p-6 text-center">
+          <span class="block font-heading text-3xl font-bold text-brand">{raisedDisplay}</span>
+          <span class="mt-1 block text-xs uppercase tracking-wide text-muted">
+            raised for BCEC
+          </span>
+        </p>
+      )
+    }
+
+    <div
+      class="prose mt-8 max-w-none prose-headings:font-heading prose-headings:text-brand-dark prose-a:text-brand"
+    >
+      <Content />
+    </div>
+
+    {
+      awaitingImpact && (
+        <p class="mt-8 rounded-xl border border-dashed border-brand/40 bg-surface p-6 text-center text-sm text-muted">
+          Thanks to everyone who came along! We're still collating the impact from
+          this event — check back soon for the numbers and photos.
+        </p>
+      )
+    }
+
+    {
+      data.outcomes && data.outcomes.length > 0 && (
+        <section class="mt-10">
+          <h2 class="font-heading text-xl font-bold text-brand-dark">Impact</h2>
+          <ul class="mt-4 space-y-3">
+            {data.outcomes.map((outcome) => (
+              <li class="flex items-start gap-3 rounded-lg bg-surface p-4">
+                <svg
+                  class="mt-0.5 h-5 w-5 flex-shrink-0 text-brand"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.42 0l-3.5-3.5a1 1 0 111.42-1.42l2.79 2.79 6.79-6.79a1 1 0 011.42 0z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span class="text-sm text-ink">{outcome}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      data.partners && data.partners.length > 0 && (
+        <section class="mt-10">
+          <h2 class="font-heading text-xl font-bold text-brand-dark">
+            Partners &amp; supporters
+          </h2>
+          <ul class="mt-4 flex flex-wrap gap-3">
+            {resolvePartners(data.partners).map((partner) => {
+              const inner = (
+                <span class="flex items-center gap-2">
+                  {partner.logo && (
+                    <img src={partner.logo} alt="" class="h-6 w-auto" loading="lazy" />
+                  )}
+                  <span class="text-sm font-medium text-brand-dark">{partner.name}</span>
+                </span>
+              );
+              return (
+                <li class="rounded-lg border border-gray-100 bg-white px-4 py-2 shadow-sm">
+                  {partner.url ? (
+                    <a
+                      href={partner.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="hover:opacity-80"
+                    >
+                      {inner}
+                    </a>
+                  ) : (
+                    inner
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      data.gallery && data.gallery.length > 0 && (
+        <section class="mt-10">
+          <h2 class="font-heading text-xl font-bold text-brand-dark">Photos</h2>
+          <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {data.gallery.map((photo) => (
+              <img
+                src={photo.src}
+                alt={photo.alt}
+                class="aspect-square w-full rounded-lg object-cover"
+                loading="lazy"
+              />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <aside class="mt-12 rounded-2xl bg-brand-dark px-6 py-8 text-center text-white">
+      <h2 class="font-heading text-xl font-bold">
+        {isPast ? 'Be part of the next one' : 'Come along'}
+      </h2>
+      <p class="mx-auto mt-2 max-w-md text-sm text-white/90">
+        BCEC is powered by local residents. Join us, lend a hand at our next event, or
+        follow along to see what we do.
+      </p>
+      <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
+        <a
+          href="/get-involved"
+          class="w-full rounded-full bg-brand px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto"
+        >
+          Get involved
+        </a>
+        <a
+          href="/events"
+          class="w-full rounded-full bg-white/10 px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-white/20 sm:w-auto"
+        >
+          See events
+        </a>
+        {
+          socials.email && (
+            <a
+              href={`mailto:${socials.email}`}
+              class="w-full rounded-full bg-white/10 px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-white/20 sm:w-auto"
+            >
+              Email us
+            </a>
+          )
+        }
+        {
+          socials.facebook && (
+            <a
+              href={socials.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="w-full rounded-full bg-white/10 px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-white/20 sm:w-auto"
+            >
+              Facebook updates
+            </a>
+          )
+        }
+      </div>
+    </aside>
+  </article>
+</BaseLayout>

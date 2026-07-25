@@ -1,0 +1,80 @@
+---
+import { nav, site } from '../config';
+
+const path = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === '/' ? path === '/' : path.startsWith(href);
+---
+
+<header class="sticky top-0 z-50 overflow-visible border-b border-gray-100 bg-white/95 backdrop-blur">
+  <nav
+    class="relative z-10 mx-auto flex h-16 max-w-5xl items-stretch justify-between px-4 sm:px-6"
+    aria-label="Primary"
+  >
+    <!-- Decorative leaves effect behind the nav -->
+    <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+      <img
+        src="/site_assets/BCEC Leaves -top-right.svg"
+        alt=""
+        aria-hidden="true"
+        class="h-full w-full object-cover object-right opacity-60"
+      />
+    </div>
+
+    <a href="/" class="flex h-full items-center gap-1.5 text-lg font-heading font-bold text-brand-dark">
+      {
+        site.logoDesktop || site.logoMobile ? (
+          <>
+            <img
+              src={site.logoMobile ?? site.logoDesktop}
+              alt={`${site.name} logo`}
+              class="h-[calc(100%-6px)] w-auto max-h-[calc(100%-4px)] md:hidden"
+            />
+            <img
+              src={site.logoDesktop ?? site.logoMobile}
+              alt={`${site.name} logo`}
+              class="hidden h-[calc(100%-6px)] w-auto max-h-[calc(100%-4px)] md:block"
+            />
+          </>
+        ) : (
+          site.name
+        )
+      }
+    </a>
+
+    <!-- Mobile menu (CSS-only toggle, no JS needed) -->
+    <input type="checkbox" id="nav-toggle" class="peer hidden" />
+    <label
+      for="nav-toggle"
+      class="relative z-20 flex h-full cursor-pointer items-center p-2 md:hidden"
+      aria-label="Toggle menu"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-ink">
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    </label>
+
+    <ul
+      class="absolute left-0 right-0 top-full z-20 hidden flex-col gap-1 border-b border-gray-100 bg-white/95 px-4 py-2 shadow-sm backdrop-blur peer-checked:flex md:static md:z-auto md:flex md:flex-row md:items-center md:gap-6 md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-0"
+    >
+      {
+        nav.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              class:list={[
+                'block py-2 text-sm font-medium transition-colors hover:text-brand',
+                isActive(item.href) ? 'text-brand' : 'text-muted',
+              ]}
+              aria-current={isActive(item.href) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>
