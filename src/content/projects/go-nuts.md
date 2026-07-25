@@ -1,6 +1,6 @@
 ---
 title: Go Nuts for Our Black Cockatoos
-summary: Go Nuts gave City of Belmont residents a free nut tree — plus a planting kit and a Carnaby's cockatoo workshop — to grow fast food for our starving black cockatoos.
+summary: Go Nuts gave City of Belmont residents a free nut tree, plus a planting kit and a Carnaby's cockatoo workshop to grow fast food for our starving black cockatoos.
 categoryChecklist:
   - '[x] Wildlife Protection'
   - '[x] Urban Forest Restoration'
@@ -57,7 +57,7 @@ gallery:
 draft: false
 ---
 
-Delivered in collaboration with the City of Belmont, Go Nuts invited local residents to help feed our starving black cockatoos by planting fast-growing nut trees — almond and macadamia — in backyards across Belmont.
+Delivered in collaboration with the City of Belmont, Go Nuts invited local residents to help feed our starving black cockatoos by planting fast-growing almond and macadamia nut trees in backyards across Belmont.
 
 Every giveaway came with everything needed to give the tree the best start in Perth's sandy soils: soil conditioners, mulch and a planting guide. Residents were also invited to a free education workshop led by Dean Arthurell of Carnaby's Crusaders at the Belmont Community Centre, where they learned about the birds' plight — now so severe that many are foregoing their annual breeding migration to the Wheatbelt.
 
