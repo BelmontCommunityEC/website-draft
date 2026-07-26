@@ -29,6 +29,6 @@ BCEC volunteers ran a community sausage sizzle at Bunnings Belmont, cooking and
 serving around 670 sausages to shoppers across the day. Eleven volunteers gave
 their time on the barbecue and behind the stall.
 
-The sizzle raised $1,243.82 for BCEC — funds we put straight back into local
+The sizzle raised $1,243.82 for BCEC. We put these funds straight back into local
 environmental projects. Thanks to Bunnings Belmont for hosting us and giving the
 community a chance to support the work on their doorstep.
