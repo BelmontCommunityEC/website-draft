@@ -109,8 +109,8 @@ morning**. Every plant was specifically chosen for the local soil type and for i
 value in providing food, shelter and habitat for native wildlife.
 
 None of it would have been possible without our community turning out in force, and
-without **Andrew and his team from the City of Belmont**, who did all the groundwork
-— literally — to prepare the site and support the day.
+without **Andrew and his team from the City of Belmont**, who did all the groundwork - 
+ literally - to prepare the site and support the day.
 
 Garvey Park shows the shift from picking up litter to putting life back into the
 landscape: thousands of plants, planted by neighbours, for a greener City of Belmont.
