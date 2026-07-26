@@ -39,6 +39,6 @@ BCEC took part in the Belmont Community Markets at Glasshouse Belmont on Saturda
 
 The Facebook event post highlighted a 10am plant propagation session led by BCEC member Sandra. The market stall gave people a chance to pick up practical propagation tips in a friendly community setting.
 
-We also ran a raffle as part of the stall, with plants as the prizes. The response was fantastic — we had around 100 entrants, which was a great indicator of community reach and interest in what we do.
+We also ran a raffle as part of the stall, with plants as the prizes. The response was fantastic, we had around 100 entrants, which was a great indicator of community reach and interest in what we do.
 
 Alongside the demonstration and raffle, the stall was an opportunity for visitors to find out more about the many ways BCEC is helping make Belmont cleaner and greener.
