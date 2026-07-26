@@ -63,7 +63,7 @@ Every giveaway came with everything needed to give the tree the best start in Pe
 
 We gave away more than 60 trees to City of Belmont residents, and were thrilled that Kewdale Primary School and Belmont City College came on board too — planting trees in their grounds for students to care for, monitor and learn from for years to come. Beyond feeding the cockatoos, the trees add to Belmont's tree canopy, shade and habitat, and the almonds are already fruiting.
 
-Buoyed by the response, we plan to keep encouraging the planting of foraging trees each season — and to add native species alongside the nut trees, so there's an option for every garden, big or small.
+Buoyed by the response, we plan to keep encouraging the planting of foraging trees each season, and to add native species alongside the nut trees, so there's an option for every garden, big or small.
 
 This project was made possible through a grant from the City of Belmont's Community Contribution Fund. Our heartfelt thanks to the City, to Dean at Carnaby's Crusaders, and to every resident who planted a tree for our iconic birds.
 
