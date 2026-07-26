@@ -121,7 +121,7 @@ gallery:
 draft: false
 ---
 
-Less Mess was our first major program, an initiative BCEC created in 2024 and delivered with the support of a Keep Australia Beautiful WA Community Litter Grant. Running from September 2024 to May 2025, it set out to do two things at once: clean up litter across the City of Belmont, and bring neighbours together while doing it. The City does a great job maintaining its parks and gardens, but public open spaces still attract litter, especially along the river, where it can wash into one of Western Australia's most significant waterways.
+Less Mess was our first major program - an initiative BCEC created in 2024 and delivered with the support of a Keep Australia Beautiful WA Community Litter Grant. Running from September 2024 to May 2025, it set out to do two things at once: clean up litter across the City of Belmont, and bring neighbours together while doing it. The City does a great job maintaining its parks and gardens, but public open spaces still attract litter - especially along the river - where it can wash into one of Western Australia's most significant waterways.
 
 At the heart of Less Mess were community-led clean-ups. Rather than running everything ourselves, we encouraged residents to pick a spot that mattered to them, gather a few neighbours, and spend an hour making it better - sharing before-and-after photos on our Facebook page. Our committee modelled the whole process first, kicking off the program with a launch clean-up along the river foreshore, then supporting locals to run their own events, spread right across Belmont's suburbs.
 
