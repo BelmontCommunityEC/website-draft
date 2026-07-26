@@ -129,7 +129,7 @@ Alongside the neighbourhood clean-ups, Less Mess included a "Say 'Yes' to Less M
 
 We also worked with primary schools on the "Bin There" art project, where students turned collected litter into sculptures. Their work was exhibited at Ruth Faulkner Library, giving young people a creative way to think about waste and a public platform to share their message with the wider community.
 
-In just six months, Less Mess coordinated eight community clean-ups, collected more than 100 bags of litter, registered more than 20 volunteers, and connected with over 100 students across the City of Belmont, reducing litter, strengthening the connections between neighbours, and building BCEC's capacity and profile as an active local environmental group. While the funded program has wrapped up, the spirit of Less Mess continues, we'll keep running and supporting clean-ups wherever they're needed. Our sincere thanks to Keep Australia Beautiful WA, the City of Belmont, Optus Stadium, our participating schools, and every volunteer who rolled up their sleeves.
+In just six months, Less Mess coordinated eight community clean-ups, collected more than 100 bags of litter, registered more than 20 volunteers, and connected with over 100 students across the City of Belmont - reducing litter, strengthening the connections between neighbours, and building BCEC's capacity and profile as an active local environmental group. While the funded program has wrapped up, the spirit of Less Mess continues, we'll keep running and supporting clean-ups wherever they're needed. Our sincere thanks to Keep Australia Beautiful WA, the City of Belmont, Optus Stadium, our participating schools, and every volunteer who rolled up their sleeves.
 
 ## Funded by
 
