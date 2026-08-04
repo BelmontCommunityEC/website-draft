@@ -13,7 +13,7 @@ export const site = {
   /** Desktop header logo (in `public/`). */
   logoDesktop: '/site_assets/BCEC Logo Long.svg',
   /** Mobile header logo (in `public/`). */
-  logoMobile: '/site_assets/BCEC Logo Square Name.svg',
+  logoMobile: '/site_assets/BCEC Logo Graphic.svg',
   /** Short tagline / credibility line shown on the home page hero. */
   tagline: 'Grounded in kindness, we care about our community & our local environment.',
   /** One-sentence description used for SEO and social sharing. */

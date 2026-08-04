@@ -21,3 +21,6 @@ pnpm-debug.log*
 
 # private documents (kept locally, never committed or deployed)
 acquittals/
+
+# Local Netlify folder
+.netlify
